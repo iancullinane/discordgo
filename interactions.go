@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"time"
 )
@@ -434,20 +435,24 @@ func VerifyInteraction(r *http.Request, key ed25519.PublicKey) bool {
 
 	signature := r.Header.Get("X-Signature-Ed25519")
 	if signature == "" {
+		log.Println("signature header error")
 		return false
 	}
 
 	sig, err := hex.DecodeString(signature)
 	if err != nil {
+		log.Println("signature decode error")
 		return false
 	}
 
 	if len(sig) != ed25519.SignatureSize {
+		log.Println("signature size error")
 		return false
 	}
 
 	timestamp := r.Header.Get("X-Signature-Timestamp")
 	if timestamp == "" {
+		log.Println("signature timestamp error")
 		return false
 	}
 
@@ -464,6 +469,7 @@ func VerifyInteraction(r *http.Request, key ed25519.PublicKey) bool {
 	// copy body into buffers
 	_, err = io.Copy(&msg, io.TeeReader(r.Body, &body))
 	if err != nil {
+		log.Println("signature copy error")
 		return false
 	}
 
